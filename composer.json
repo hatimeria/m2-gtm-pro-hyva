@@ -1,0 +1,28 @@
+{
+  "name": "hyva-themes/magento2-gtmpro",
+  "description": "Hyva_GtmPro makes Hatimeria_GtmPro compatible with Hyvä Themes",
+  "type": "magento2-module",
+  "require": {
+    "magento/framework": "^103",
+    "hatimeria/m2-gtmpro": "^1.0.0"
+  },
+  "authors": [{
+    "name": "Hyvä Themes B.V.",
+    "email": "info@hyva.io"
+  }],
+  "license": "see LICENSE.md",
+  "autoload": {
+    "files": [
+      "src/registration.php"
+    ],
+    "psr-4": {
+      "Hyva\\GtmPro\\": "src/"
+    }
+  },
+  "repositories": {
+    "magento": {
+      "type": "composer",
+      "url": "https://repo.magento.com/"
+    }
+  }
+}
