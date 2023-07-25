@@ -1,0 +1,17 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+/** @var \Hatimeria\GtmPro\Block\Catalog\Product\ProductList\ItemDataLayerData $block */
+// @codingStandardsIgnoreFile
+?>
+<?php if ($block->isProductImpressionTrackingEnabled()): ?>
+    <div class='product-impression-data' data-impression='<?= $block->getProductImpressionData() ?>'></div>
+<?php endif; ?>
+<?php if ($block->isProductClickTrackingEnabled()): ?>
+    <div class='product-click-data' data-click='<?= $block->getProductClickData() ?>' data-url='<?= $block->getProduct()->getProductUrl() ?>'></div>
+<?php endif; ?>
