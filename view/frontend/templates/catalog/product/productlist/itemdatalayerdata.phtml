@@ -9,9 +9,99 @@
 /** @var \Hatimeria\GtmPro\Block\Catalog\Product\ProductList\ItemDataLayerData $block */
 // @codingStandardsIgnoreFile
 ?>
+<script>
+    'use strict';
+    function productImpression(config) {
+        return {
+            productClass: config.productClass ?? '',
+            init(config) {
+                this.pushStep();
+            },
+            pushStep() {
+                const products = document.querySelectorAll('.' + 'product-item');
+                window.dataLayer = window.dataLayer || [];
+
+                var observer = new IntersectionObserver(entries => {
+                    entries.forEach(entry => {
+                        if (entry.intersectionRatio > 0 && !entry.target.classList.contains('intersection-viewed')) {
+                            entry.target.classList.add('intersection-viewed');
+
+                            var product_impression = this.$refs.product_impression;
+                            var impressionData = product_impression.getAttribute('data-impression');
+
+                            if (typeof impressionData !== "undefined" && impressionData.length != 0) {
+                                window.dataLayer.push({ ecommerce: null });
+                                window.dataLayer.push(JSON.parse(impressionData));
+                            }
+                        }
+                    });
+                });
+
+                products.forEach(image => {
+                    observer.observe(image);
+                });
+            },
+
+            onClick(value) {
+                const event = new Event('click');
+                document.querySelectorAll('.' + value).forEach(el => {
+                    el.dispatchEvent(event);
+                })
+            }
+        }
+    }
+
+    function productClick() {
+        return {
+            productClasses: ['product-item-photo', 'product-item-link'],
+            productClickElementClass: 'product-item',
+            pushStep() {
+                this.productClasses.forEach(value => {
+                    document.querySelectorAll('.' + value).forEach(el => {
+                        el.addEventListener('click', event => {
+                            this.fireProductClick(event)
+                        })
+                    })
+                })
+            },
+            fireProductClick(event) {
+                if (!event.target.classList.contains('product-clicked')) {
+                    event.stopPropagation();
+                    event.target.classList.add('product-clicked');
+                    const parent = event.target.closest('.' + this.productClickElementClass);
+                    const data = parent.querySelector('*[data-click]').dataset.click;
+                    window.dataLayer.push({ ecommerce: null });
+                    // window.dataLayer.push(data);
+                    window.dataLayer.push(JSON.parse(data));
+                    event.target.click();
+                }
+            },
+            onClick(value) {
+                const event = new Event('click');
+                document.querySelectorAll('.' + value).forEach(el => {
+                    el.dispatchEvent(event);
+                })
+            }
+        }
+    }
+</script>
+
 <?php if ($block->isProductImpressionTrackingEnabled()): ?>
-    <div class='product-impression-data' data-impression='<?= $block->getProductImpressionData() ?>'></div>
+    <div class='product-impression-data'
+         x-ref="product_impression"
+         x-data='productImpression(<?= $block->getProductImpressionData() ?>);'
+         data-impression='<?= $block->getProductImpressionData() ?>'
+         x-init='pushStep();'
+         x-on:click='onClick();'>
+    </div>
 <?php endif; ?>
 <?php if ($block->isProductClickTrackingEnabled()): ?>
-    <div class='product-click-data' data-click='<?= $block->getProductClickData() ?>' data-url='<?= $block->getProduct()->getProductUrl() ?>'></div>
+    <div class='product-click-data'
+         x-ref="product_click"
+         x-data='productClick();'
+         x-init='pushStep();'
+         data-click='<?= $block->getProductClickData() ?>'
+         x-on:click='onClick();'
+         data-url='<?= $block->getProduct()->getProductUrl() ?>'>
+    </div>
 <?php endif; ?>
