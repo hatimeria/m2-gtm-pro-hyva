@@ -11,25 +11,25 @@
 ?>
 <script>
     'use strict';
-    function initNewsletterForm() {
+    window.addEventListener('DOMContentLoaded', () => {
+        var pushStep = init();
+        pushStep.pushStep();
+    });
+    function init() {
         return {
             formData: '<?= json_encode($block->getFormData()) ?>' ?? [],
-            init() {
-                this.pushStep();
-            },
             pushStep() {
                 window.dataLayer = window.dataLayer || [];
                 var formData = JSON.parse(this.formData);
                 Object.values(formData).forEach((data, index) => {
                     if (document.querySelector('#' + data.form_id) && document.querySelector('#' + data.form_id).length) {
                         document.querySelectorAll('#' + data.form_id).forEach(function(element) {
-                            element.setAttribute('x-bind:data-eventname', `${data.event_name}`);
                             element.setAttribute('x-data', "{email:''}");
                         });
                         data.form_field_ids.forEach((fieldId) => {
                             if (document.querySelectorAll('#' + data.form_id + ' #' + fieldId).length) {
                                 document.querySelector('#' + data.form_id + ' #' + fieldId).classList.add('trackfield');
-                                document.querySelector('#' + data.form_id + ' #' + fieldId).setAttribute('x-model', "email");
+                                document.querySelector('#' + data.form_id + ' #' + fieldId).setAttribute('x-model', `${data.event_name}_${fieldId}`);
                             }
                         });
                         var form = document.querySelector('#' + data.form_id);
@@ -39,17 +39,16 @@
                     }
                 });
             },
-
-            submitForm() {
-                this.$event.preventDefault();
+            submitForm(event) {
+                event.preventDefault();
                 var data = {};
-                data.event = this.$event.target.getAttribute('x-bind:data-eventname');
-                this.$event.target.querySelectorAll('.trackfield').forEach((obj) => {
-                    data[obj.getAttribute('id')] = this.email;
+                data.event = event.target.getAttribute('x-bind:data-eventname');
+                event.target.querySelectorAll('.trackfield').forEach((obj) => {
+                    data[obj.getAttribute('id')] = this[`${data.event_name}_${fieldId}`];
                 });
                 window.dataLayer = window.dataLayer || [];
                 window.dataLayer.push(data);
-            }
+            },
         }
     }
 </script>
